@@ -42,7 +42,8 @@ public class BranchBoundaryMethod implements  Algorithm{
     создаем дерево по которому потом найдем минимальный путь
      */
         private void makeTree(Matrix matrix){
-        if(matrix.getMatrix().length<2) return;
+        if(matrix.getMatrix().length<2) return;                           //над условием еще подумать!!!!!! (до длины пути равной
+                                                                          //matrix.getMatrix().lenght-1) ->может быть! подумать еще!!!
 
         Matrix leftMatrix = new Matrix();                                 //левое поддерево (с включением критической точки)
         Matrix rightMatrix = new Matrix();                                //правое поддерево (с исключением критической точки)
