@@ -25,6 +25,7 @@ public class BranchBoundaryMethod implements  Algorithm{
     /*
     находим оптимальный путь методом ветвей и границ
      */
+    //тут надо еще из matrix.getWay() сформировать нормальный путь в виде городов и вернуть его а не null!!!
     @Override
     public ArrayList<City> getBestWay(ArrayList<City> wantedCities) {
         matrix.setMatrix(createGraph(wantedCities));
@@ -66,8 +67,8 @@ public class BranchBoundaryMethod implements  Algorithm{
         rightGraph = getRightGraph( i,j,toWayIJ[0],toWayIJ[1]);           //создаем новый граф для правого поддерева
                                                                           // исключая из пути позицию разветвления
 
-        leftMatrix.setMin(matrix.getMin()+getLeftMinDistance(leftGraph));                 //и устанавливаем какие минимальные пути
-        rightMatrix.setMin(matrix.getMin()+getRightMinDistance(rightGraph));              //могут быть в каждом из этих графов
+        leftMatrix.setMin(matrix.getMin()+getLeftMinDistance(leftGraph));   //и устанавливаем какие минимальные пути
+        rightMatrix.setMin(matrix.getMin()+getRightMinDistance(rightGraph)); //могут быть в каждом из этих графов
 
 
         leftMatrix.setWay( getWay( matrix,false,toWayIJ ) );    //заполяем текущий путь(какие переходы войдут,
@@ -96,18 +97,18 @@ public class BranchBoundaryMethod implements  Algorithm{
     но меньше него точно не сможем сделать
      */
     private double findMinWay(){
-        int[] minRows = findMinimumsByRows();
+        int[] minRows = findMinimumsByRows();                       //ищем позиции минимальных элементов по строчкам
         double sumRows=0;
         for(int i=from;i<minRows.length+1;i++){
-            sumRows+=currentGraph[i][minRows[i-1]];
+            sumRows+=currentGraph[i][minRows[i-1]];                 //находим сумму всех минимумов по строчкам
         }
-        deductValuesFromRows();
-        int[] minColumns = findMinimumsByColumns();
+        deductValuesFromRows();                                     //вычитаем эти минимальные значения из каждой строчки
+        int[] minColumns = findMinimumsByColumns();                 //ищем минимальные значения в колонках
         double sumColumns=0;
         for(int i=from;i<minColumns.length+1;i++){
-            sumColumns+=currentGraph[minColumns[i-1]][i];
+            sumColumns+=currentGraph[minColumns[i-1]][i];           //находим сумму всех минимумов по столбцам
         }
-        return sumRows+sumColumns;
+        return sumRows+sumColumns;                                  //возвращаем сумму минимумов (меньше этого пути быть никак не может)
     }
 
     //_____________________________________________________________________________________
@@ -116,52 +117,54 @@ public class BranchBoundaryMethod implements  Algorithm{
     смотрим какие возможные пути при даном могут образовать циклический путь,
     при котором другие точки не достижимы и удаляем их сразу (в граф на месте этого пути
     пишем бесконечность
+    (по-хорошему нужно придумать что-то получше, код ужас)
     */
     private double[][] deleteLoopCell(double [][] graph,ArrayList<Cell> way){
         ArrayList<Integer[]> tmp = new ArrayList<>(  );
         boolean isStop;
         boolean isFound;
-        for(int i=0;i<way.size();i++){
+        for(int i=0;i<way.size();i++){                                  //проходимся по каждой точке содержащейся в пути
             isStop = false;
-            if(way.get( i ).isPresent()) {
-                int tmpJ = way.get( i ).getJ();
+            if(way.get( i ).isPresent()) {                              //если точка присутствует в пути
+                int tmpJ = way.get( i ).getJ();                         //запоминаем куда мы едем (позицию j)
                 while (!isStop) {
                     isFound = false;
-                    for (int j = 0; j < way.size(); j++) {
-                        if(way.get( j ).isPresent()) {
-                            if (i != j) {
-                                if (way.get( j ).getI() == tmpJ) {
-                                    tmpJ = way.get( j ).getJ();
-                                    isFound = true;
+                    for (int j = 0; j < way.size(); j++) {              //проходимся по всем элементам этого же пути
+                        if(way.get( j ).isPresent()) {                  //и пытаемся найти такое перемещение, чтобы i=j
+                            if (i != j) {                               //(то есть въехали мы в город j, и смотрим
+                                if (way.get( j ).getI() == tmpJ) {      //выезжаем ли мы куда-то в даном пути)
+                                    tmpJ = way.get( j ).getJ();         //если нашли такой путь, то запоминаем что это за город
+                                    isFound = true;                     //и выходим из цикла
                                     break;
                                 }
                             }
                         }
                     }
-                    if (!isFound) {
-                        isStop = true;
-                        Integer[] r = new Integer[2];
-                        r[1] = way.get( i ).getI();
-                        r[0] = tmpJ;
-                        tmp.add( r );
+                    if (!isFound) {                                     //если такой город найден то запоминаем
+                        isStop = true;                                  //комбинацию которой не может быть (она будет
+                        Integer[] r = new Integer[2];                   //циклической)
+                        r[1] = way.get( i ).getI();                     //например, был путь 2->3 3->4, 4->2 -запрещенный путь
+                        r[0] = tmpJ;                                    //потому что в таком случае мы сможем посетить только города 2 3 4
+                        tmp.add( r );                                   //и никогда не уедем из них
                     }
                 }
             }
         }
         int i=-1;
-        while(true) {
-            if(i==tmp.size()-1) break;
-            i++;
-            for (Cell aWay : way) {
-                if (tmp.get( i )[1] == aWay.getJ() && aWay.isPresent()) {
-                    tmp.remove( i );
+        while(true) {                                                   //но получается такая фигня, что мы добавляем в tmp
+            if(i==tmp.size()-1) break;                                  //лишние переходы, которые цикл не образуют
+            i++;                                                        //например 2->3 3->4 4->5, при моем агл добавятся и 4->2 и 5->3
+            for (Cell aWay : way) {                                     //но 5->3 быть уже не может, потому что в 3 мы идем из 2
+                if (tmp.get( i )[1] == aWay.getJ() &&                   //и эти лишние переходы нужно удалить
+                        aWay.isPresent()) {                             //смотрим, если j в найденный переходах присутсвует в
+                    tmp.remove( i );                                    //переходах пути то удаляем его
                     i--;
                     break;
                 }
             }
         }
-        for (Integer[] aTmp : tmp) {
-            for (int a = 0; a < graph.length; a++) {
+        for (Integer[] aTmp : tmp) {                                    //и тут найденным переходам, которые образуют циклы
+            for (int a = 0; a < graph.length; a++) {                    //порисваиваем бесконечность(исключаем эти пути)
                 for (int b = 0; b < graph.length; b++) {
                     if (aTmp[0] == graph[a][0] && aTmp[1] == graph[0][b]) {
                         graph[a][b] = INFINITY;
@@ -187,21 +190,21 @@ public class BranchBoundaryMethod implements  Algorithm{
         int iIndexForChanging = -1;
         int jIndexForChanging = -1;
 
-        for(int q =0;q<currentGraph.length;q++){
-            if(currentGraph[q][0]==toWayJ){
-                iIndexForChanging = q;
-            }
-            if(currentGraph[0][q]==toWayI){
+        for(int q =0;q<currentGraph.length;q++){                                //тут мы ищем какую ячейку нужно исключить
+            if(currentGraph[q][0]==toWayJ){                                     //из пути. например путь из i->j присутствует,
+                iIndexForChanging = q;                                          //значит из j->i быть не должен
+            }                                                                   //его нужно удалить. мы ищем позицию этого
+            if(currentGraph[0][q]==toWayI){                                     //этого пути в графе
                 jIndexForChanging = q;
             }
         }
-        if(iIndexForChanging!=-1 && jIndexForChanging!=-1) {
-            currentGraph[iIndexForChanging][jIndexForChanging] = INFINITY;
+        if(iIndexForChanging!=-1 && jIndexForChanging!=-1) {                    //если такой путь есть
+            currentGraph[iIndexForChanging][jIndexForChanging] = INFINITY;      //удаляем его
         }
         a=0;
-        for(int k=0;k<currentGraph.length;k++){
-            b=0;
-            if(k!=i) {
+        for(int k=0;k<currentGraph.length;k++){                                 //присваиваем новому графу текущий
+            b=0;                                                                //но без строчки где город toWayI
+            if(k!=i) {                                                          //и без столбца где город toWayJ
                 for (int u = 0; u < currentGraph.length; u++) {
                     if (u != j) {
                         rightGraph[a][b] = currentGraph[k][u];
@@ -327,14 +330,14 @@ public class BranchBoundaryMethod implements  Algorithm{
     вычитаем все минимальные значения из каждой строчки
      */
     private void deductValuesFromRows(){
-        int[] mins  = findMinimumsByRows();
+        int[] mins  = findMinimumsByRows();                         //находим позиции минимальных значений по строчкам
         double[] minValues = new double[mins.length];
         for(int i=from;i<minValues.length+1;i++){
-            minValues[i-1]=currentGraph[i][mins[i-1]];
+            minValues[i-1]=currentGraph[i][mins[i-1]];              //находим минимальные значения в каждой строчке
         }
         for(int i=from;i<currentGraph.length;i++){
             for(int j=from;j<currentGraph.length;j++) {
-                currentGraph[i][j] -= minValues[i-1];
+                currentGraph[i][j] -= minValues[i-1];               //вычитаем соответствующие минимумы из каждой строчки
             }
         }
     }
@@ -344,14 +347,14 @@ public class BranchBoundaryMethod implements  Algorithm{
      вычитаем все минимальные значения из каждого столбца
      */
     private void deductValuesFromColumns(){
-        int[] mins  = findMinimumsByColumns();
+        int[] mins  = findMinimumsByColumns();                         //находим позиции минимальных значений по столбцам
         double[] minValues = new double[mins.length];
         for(int i=from;i<minValues.length+1;i++){
-            minValues[i-1]=currentGraph[mins[i-1]][i];
+            minValues[i-1]=currentGraph[mins[i-1]][i];                 //находим минимальные значения в каждом столбце
         }
         for(int i=from;i<currentGraph.length;i++){
             for(int j=from;j<currentGraph.length;j++) {
-                currentGraph[j][i] -= minValues[i-1];
+                currentGraph[j][i] -= minValues[i-1];                  //вычитаем соответствующие минимумы из каждого столбца
             }
         }
     }
@@ -390,8 +393,8 @@ public class BranchBoundaryMethod implements  Algorithm{
 
             minValueTmp = INFINITY;
 
-            for (int j = from; j < currentGraph.length; j++) {
-                if (j != zeroPositions.get( i )[0][1]) {
+            for (int j = from; j < currentGraph.length; j++) {                                  //находим в каком столбце позиция
+                if (j != zeroPositions.get( i )[0][1]) {                                        //минимума для i-того нуля
                     if (currentGraph[zeroPositions.get( i )[0][0]][j] <
                             minValueTmp) {
                         minColumnPosition = j;
@@ -402,8 +405,8 @@ public class BranchBoundaryMethod implements  Algorithm{
 
             minValueTmp = INFINITY;
 
-            for (int j = from; j < currentGraph.length; j++) {
-                if (j != zeroPositions.get( i )[0][0]) {
+            for (int j = from; j < currentGraph.length; j++) {                                 //находим в какой строке позиция
+                if (j != zeroPositions.get( i )[0][0]) {                                       //минимума для i-того нуля
                     if (currentGraph[j][zeroPositions.get( i )[0][1]] <
                             minValueTmp) {
                         minRowPosition = j;
@@ -412,8 +415,8 @@ public class BranchBoundaryMethod implements  Algorithm{
                 }
             }
 
-            minPositions[2 * i][0] = minRowPosition;
-            minPositions[2 * i][1] = zeroPositions.get( i )[0][1];
+            minPositions[2 * i][0] = minRowPosition;                                        //в один массив записываем и позицию
+            minPositions[2 * i][1] = zeroPositions.get( i )[0][1];                          //минимума по строке и по столбцу
 
             minPositions[i * 2 + 1][0] = zeroPositions.get( i )[0][0];
             minPositions[i * 2 + 1][1] = minColumnPosition;
@@ -428,8 +431,8 @@ public class BranchBoundaryMethod implements  Algorithm{
     private int[][] findCellForBranching() {
         ArrayList<int[][]> zeroPositions ;
         zeroPositions = findZeroPositions();
-        int[][] minPositions = getMinPositions( zeroPositions );
-
+        int[][] minPositions = getMinPositions( zeroPositions );                    //находим минималные позиции
+                                                                                    //для каждого нуля
         //ищем позицию нуля, в котором сумма минимум по строке
         //и столбцу даст максимальный результат
         int[][] cellForBoundary = new int[1][2];
