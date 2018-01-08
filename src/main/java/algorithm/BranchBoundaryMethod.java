@@ -164,7 +164,7 @@ public class BranchBoundaryMethod implements  Algorithm{
             }
         }
         for (Integer[] aTmp : tmp) {                                    //и тут найденным переходам, которые образуют циклы
-            for (int a = 0; a < graph.length; a++) {                    //порисваиваем бесконечность(исключаем эти пути)
+            for (int a = 0; a < graph.length; a++) {                    //присваиваем бесконечность(исключаем эти пути)
                 for (int b = 0; b < graph.length; b++) {
                     if (aTmp[0] == graph[a][0] && aTmp[1] == graph[0][b]) {
                         graph[a][b] = INFINITY;
