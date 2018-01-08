@@ -275,8 +275,6 @@ public class BranchBoundaryMethod implements  Algorithm{
         currWay.add(new Cell(toWayIJ[0],toWayIJ[1],isPresent));
         return currWay;
     }
-    //_____________________________________________________________________________________
-
 
     //_____________________________________________________________________________________
     /*
