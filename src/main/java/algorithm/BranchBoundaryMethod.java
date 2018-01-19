@@ -42,7 +42,6 @@ public class BranchBoundaryMethod implements  Algorithm{
         findFullWay(  way,wantedCities.size());
         deleteNotPresentedCells( way );
         ArrayList<Cell> resWay = sortCells(way);
-        printWay( resWay);
         ArrayList<City> result = new ArrayList<>(  );
         result.add( wantedCities.get( resWay.get( 0 ).getI() -1) );
         for(int i=0;i<resWay.size();i++){
@@ -176,7 +175,6 @@ public class BranchBoundaryMethod implements  Algorithm{
         i = posForBranching[0][0];
         j = posForBranching[0][1];
 
-            printGraph( matrix.getMatrix() );
             printWay( matrix.getWay() );
         toWayIJ = getToWayIJ( i,j );                                      //смотрим какие города находятся в этой позиции
 
@@ -206,9 +204,7 @@ public class BranchBoundaryMethod implements  Algorithm{
             matrix.setRightMatrix( rightMatrix );
             leftMatrix.setParent( matrix );
             rightMatrix.setParent( matrix );
-           // printGraph( matrix.getMatrix() );
-            System.out.println(leftMatrix.getMin()+" "+rightMatrix.getMin());
-        makeTree(findMinResMatrix(matrix) );
+            makeTree(findMinResMatrix(matrix) );
 
 
        /* if(leftMatrix.getMin()<rightMatrix.getMin()) {                    //идем в то поддерево, где возможнен меньший путь
@@ -249,7 +245,6 @@ public class BranchBoundaryMethod implements  Algorithm{
                     res = lists.get( i );
                 }
             }
-        System.out.println(min+" "+res.getMatrix().length);
             return res;
     }
 
