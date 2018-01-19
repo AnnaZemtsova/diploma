@@ -207,8 +207,8 @@ public class BranchBoundaryMethod implements  Algorithm{
         rightGraph = getRightGraph( i,j,toWayIJ[0],toWayIJ[1]);           //создаем новый граф для правого поддерева
                                                                           // исключая из пути позицию разветвления
 
-        leftMatrix.setWay( getWay( matrix,false,toWayIJ ) );     //заполяем текущий путь(какие переходы войдут,
-        rightMatrix.setWay( getWay( matrix,true,toWayIJ ) );     //какие нет)
+        leftMatrix.setWay( getWay( matrix,false,toWayIJ ) );              //заполяем текущий путь(какие переходы войдут,
+        rightMatrix.setWay( getWay( matrix,true,toWayIJ ) );              //какие нет)
 
         rightGraph = deleteLoopCell( rightGraph,rightMatrix.getWay() );   //удаляем из получившихся графов пути, которые
         leftGraph = deleteLoopCell( leftGraph,leftMatrix.getWay() );      //образуют цикл
@@ -229,8 +229,8 @@ public class BranchBoundaryMethod implements  Algorithm{
         leftMatrix.setParent( matrix );
         rightMatrix.setParent( matrix );
 
-        makeTree(findMinResMatrix(matrix) );                            //ищем поддерево (из всех листьев), 
-                                                                        // где нижняя граница минимальна
+        makeTree(findMinResMatrix(matrix) );                             //ищем поддерево (из всех листьев), 
+                                                                         // где нижняя граница минимальна
     }
 
     //_____________________________________________________________________________________
@@ -302,7 +302,7 @@ public class BranchBoundaryMethod implements  Algorithm{
     но меньше него точно не сможем сделать
      */
     private double findMinWay(){
-        int[] minRows = findMinimumsByRows();                    //ищем позиции минимальных элементов по строчкам
+        int[] minRows = findMinimumsByRows();                        //ищем позиции минимальных элементов по строчкам
         double sumRows=0;
         for(int i=from;i<minRows.length+1;i++){
             sumRows+=currentGraph[i][minRows[i-1]];                 //находим сумму всех минимумов по строчкам
