@@ -1,23 +1,22 @@
 package algorithm;
 
 import data.City;
-import data.Train;
 import dataForAlgorithm.Cell;
 import dataForAlgorithm.Matrix;
-import generalData.ALLDATA;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 
-public class BranchBoundaryMethod implements  Algorithm{
-    private ArrayList<Train> trains;
+
+public class BranchBoundaryMethod implements TravelingSalesmanProblem{
     private Matrix matrix;
-    private static double INFINITY =4147483647.0;
+    private static final double INFINITY =4147483647.0;
+    private static final int from =1;
     private double [][] currentGraph;
-    private static int from =1;
+    private double minValue;
+
+
     public BranchBoundaryMethod(){
-        trains = ALLDATA.trains;
         matrix = new Matrix();
     }
 
@@ -27,43 +26,52 @@ public class BranchBoundaryMethod implements  Algorithm{
     находим оптимальный путь методом ветвей и границ
      */
     @Override
-    public ArrayList<City> getBestWay(ArrayList<City> wantedCities) {
-        matrix.setMatrix(createGraph(wantedCities));
+    public ArrayList<Cell> getBestWay(int amountOfCity,double[][] currentGraph) {
+        this.currentGraph = currentGraph;
+        matrix.setMatrix(currentGraph);
         matrix.setWay( new ArrayList<>(  ) );
-        currentGraph = matrix.getMatrix();
         matrix.setMin( findMinWay() );
         makeTree(matrix);
-        return findWay( wantedCities );
+        return findWay( amountOfCity );
     }
 
+    //_____________________________________________________________________________________
+    @Override
+    public double getMinValue() {
+        return minValue;
+    }
+    
     //_____________________________________________________________________________________
 
     /*
     у нас есть дерево, из него ищем нужный путь и преобразуем его в массив городов
      */
-    private ArrayList<City> findWay(ArrayList<City> wantedCities){
+    private ArrayList<Cell> findWay(int amountOfSity){
         Matrix res = findMatrix( getRoot( matrix )  );                       //из всего дерева ищем нужную нам, результирующую матрицу
-        ArrayList<Cell> way = res.getWay();                                  
-        findFullWay(  way,wantedCities.size());                             //в результирующей матрице путь не полный, без двух переходов.              
+        minValue = res.getMin();
+        ArrayList<Cell> way = res.getWay();
+        findFullWay(  way, amountOfSity);                             //в результирующей матрице путь не полный, без двух переходов.
                                                                             // Находим, что это будут за переходы
         deleteNotPresentedCells( way );                                     //удаляем все переходы, которые не присутствуют в пути
         ArrayList<Cell> resWay = sortCells(way);                            //сортируем ячейки от первого перехода до последнего
-        ArrayList<City> result = new ArrayList<>(  );
+
+        return resWay;
+        /*ArrayList<City> result = new ArrayList<>(  );
         result.add( wantedCities.get( resWay.get( 0 ).getI() -1) );         //получаем из массива номеров городов сами города
         for (Cell aResWay : resWay) {
             result.add( wantedCities.get( aResWay.getJ() - 1 ) );
         }
-        return result;
+        printCities( result );*/
     }
 
     //_____________________________________________________________________________________
-   
+
     /*
         у нас есть массив, в котором указаны номера городов:
         откуда -> куда
         откуда -> куда
         .....
-        Но они не отсортированы. 
+        Но они не отсортированы.
         Сортируем
      */
     private ArrayList<Cell> sortCells(ArrayList<Cell> way) {
@@ -184,7 +192,6 @@ public class BranchBoundaryMethod implements  Algorithm{
             matrix.setColor( Matrix.RED );                                //красим результирующую матрицу в красный цвет
             return ;                                                      //чтобы потом найти ее
         }
-
         Matrix leftMatrix = new Matrix();                                 //левое поддерево (с включением критической точки)
         Matrix rightMatrix = new Matrix();                                //правое поддерево (с исключением критической точки)
         double[][] leftGraph;                                             //граф левого поддерева
@@ -207,8 +214,8 @@ public class BranchBoundaryMethod implements  Algorithm{
         rightGraph = getRightGraph( i,j,toWayIJ[0],toWayIJ[1]);           //создаем новый граф для правого поддерева
                                                                           // исключая из пути позицию разветвления
 
-        leftMatrix.setWay( getWay( matrix,false,toWayIJ ) );              //заполяем текущий путь(какие переходы войдут,
-        rightMatrix.setWay( getWay( matrix,true,toWayIJ ) );              //какие нет)
+        leftMatrix.setWay( getWay( matrix,false,toWayIJ ) );     //заполяем текущий путь(какие переходы войдут,
+        rightMatrix.setWay( getWay( matrix,true,toWayIJ ) );     //какие нет)
 
         rightGraph = deleteLoopCell( rightGraph,rightMatrix.getWay() );   //удаляем из получившихся графов пути, которые
         leftGraph = deleteLoopCell( leftGraph,leftMatrix.getWay() );      //образуют цикл
@@ -229,8 +236,8 @@ public class BranchBoundaryMethod implements  Algorithm{
         leftMatrix.setParent( matrix );
         rightMatrix.setParent( matrix );
 
-        makeTree(findMinResMatrix(matrix) );                             //ищем поддерево (из всех листьев), 
-                                                                         // где нижняя граница минимальна
+        makeTree(findMinResMatrix(matrix) );                              //ищем поддерево (из всех листьев),
+                                                                          // где нижняя граница минимальна
     }
 
     //_____________________________________________________________________________________
@@ -246,7 +253,7 @@ public class BranchBoundaryMethod implements  Algorithm{
     }
 
     //_____________________________________________________________________________________
-    
+
     /*
     ищем корень дерева matrix
      */
@@ -259,7 +266,7 @@ public class BranchBoundaryMethod implements  Algorithm{
     }
 
     //_____________________________________________________________________________________
-    
+
     /*
     находим матрицу из lists с минимальной нижней границей
      */
@@ -276,7 +283,7 @@ public class BranchBoundaryMethod implements  Algorithm{
     }
 
     //_____________________________________________________________________________________
-    
+
     /*
     ищем все листья нашего дерева
      */
@@ -302,7 +309,7 @@ public class BranchBoundaryMethod implements  Algorithm{
     но меньше него точно не сможем сделать
      */
     private double findMinWay(){
-        int[] minRows = findMinimumsByRows();                        //ищем позиции минимальных элементов по строчкам
+        int[] minRows = findMinimumsByRows();                    //ищем позиции минимальных элементов по строчкам
         double sumRows=0;
         for(int i=from;i<minRows.length+1;i++){
             sumRows+=currentGraph[i][minRows[i-1]];                 //находим сумму всех минимумов по строчкам
@@ -655,7 +662,7 @@ public class BranchBoundaryMethod implements  Algorithm{
     из одного города в другой
     всем невозможным путям присваиваем расстояние(цену) = бесконечности
      */
-    private double[][] createGraph(ArrayList<City> wantedCities){
+  /*  private double[][] createGraph(ArrayList<City> wantedCities){
         double[][] graph = new double[wantedCities.size()+1][wantedCities.size()+1];
         for(int i=0;i<wantedCities.size()+1;i++){
             for(int j=0;j<wantedCities.size()+1;j++){
@@ -681,7 +688,7 @@ public class BranchBoundaryMethod implements  Algorithm{
             }
         }
         return graph;
-    }
+    }*/
     //_____________________________________________________________________________________
 
 
@@ -700,7 +707,7 @@ public class BranchBoundaryMethod implements  Algorithm{
     private void printGraph(double[][] graph){
         String str="";
         System.out.println("GRAPH");
-        System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+        System.out.println("-----------------------------------------------------------------------");
         for(int r=0;r<graph.length;r++){
             for(int p=0;p<graph.length;p++){
                 if(graph[r][p]>100000000) {
@@ -712,7 +719,7 @@ public class BranchBoundaryMethod implements  Algorithm{
                 System.out.printf(" %4s   |",str);
             }
             System.out.println();
-            System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+            System.out.println("------------------------------------------------------------------");
         }
     }
     //_____________________________________________________________________________________
