@@ -3,7 +3,7 @@ import data.City;
 
 import java.util.Date;
 
-public class Train {
+public class Vehicle {
     City from;
     City to;
     Date datefrom;
@@ -19,7 +19,7 @@ public class Train {
         this.destination = destination;
     }
 
-    public Train(City from, City to, Date dfrom, Date dto, double destination,double price){
+    public Vehicle(City from, City to, Date dfrom, Date dto, double destination, double price){
         this.from=from;
         this.to = to;
         this.datefrom = dfrom;
@@ -58,5 +58,13 @@ public class Train {
 
     public void setDateTo(Date dateTo) {
         this.dateTo = dateTo;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 }
