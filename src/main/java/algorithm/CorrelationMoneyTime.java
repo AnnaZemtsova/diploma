@@ -30,7 +30,7 @@ public class CorrelationMoneyTime implements Algorithm {
         double timeCurrVal = findOtherValue( graphCreator.createGraphByTime(wantedCities ),bestWay );
         ArrayList<City> result = getCities(bestWay);
         printCities( result );
-        System.out.println("Цена поездки: "+moneyCurrVal+" ,время"+timeCurrVal);
+        System.out.println("Цена поездки: "+moneyCurrVal+" ,время: "+timeCurrVal);
         return null;
     }
 
