@@ -27,8 +27,8 @@ public class CorrelationMoneyTime implements Algorithm {
     @Override
     public ArrayList<City> getWay( double money, double time) {
         ArrayList<Cell> bestWay = findBestWay( money,time );
-        double moneyCurrVal = findOtherValue(graphCreator.createGraphByMoney( ALLDATA.vehicles,wantedCities ),bestWay );
-        double timeCurrVal = findOtherValue( graphCreator.createGraphByTime( ALLDATA.vehicles,wantedCities ),bestWay );
+        double moneyCurrVal = findOtherValue(graphCreator.createGraphByMoney( wantedCities ),bestWay );
+        double timeCurrVal = findOtherValue( graphCreator.createGraphByTime(wantedCities ),bestWay );
         ArrayList<City> result = new ArrayList<>(  );
         result.add( wantedCities.get( bestWay.get( 0 ).getI() -1) );         //получаем из массива номеров городов сами города
         for (Cell aResWay : bestWay) {
@@ -51,8 +51,8 @@ public class CorrelationMoneyTime implements Algorithm {
        о заданных по обеим параметрам
      */
     private ArrayList<Cell> findBestWay(double money, double time){
-        double [][] graphByMoney = graphCreator.createGraphByMoney( ALLDATA.vehicles,wantedCities);
-        double [][] graphByTime  = graphCreator.createGraphByTime( ALLDATA.vehicles,wantedCities);
+        double [][] graphByMoney = graphCreator.createGraphByMoney( wantedCities);
+        double [][] graphByTime  = graphCreator.createGraphByTime(wantedCities);
         /*
            сначала ищем, может быть есть путь, в котором минимальная цена, а время в рамках допустимого
          */
@@ -63,8 +63,8 @@ public class CorrelationMoneyTime implements Algorithm {
            или если нет такого пути, может быть есть путь, в котором минимально время, а путь допустимый
          */
 
-        graphByMoney = graphCreator.createGraphByMoney( ALLDATA.vehicles,wantedCities);
-        graphByTime  = graphCreator.createGraphByTime( ALLDATA.vehicles,wantedCities);
+        graphByMoney = graphCreator.createGraphByMoney(wantedCities);
+        graphByTime  = graphCreator.createGraphByTime( wantedCities);
         ArrayList<Cell> wayTime = findAvailableWayByMinimum( time, money, graphByTime, graphByMoney );
 
         if(wayTime != null) return wayTime;
@@ -108,9 +108,9 @@ public class CorrelationMoneyTime implements Algorithm {
     private ArrayList<CorrelatedWay>  findAllowableWay(ArrayList<CorrelatedWay> correlatedWays, double moneyPer,
                                                       double timePer, double money, double time, double e){
         ArrayList<Cell> way = travelingSalesmanProblem.getBestWay( wantedCities.size() ,
-                graphCreator.createGraphByTimeMoney( ALLDATA.vehicles,wantedCities,moneyPer,timePer ) );
-        double moneyCurrVal = findOtherValue(graphCreator.createGraphByMoney( ALLDATA.vehicles,wantedCities ),way );
-        double timeCurrVal = findOtherValue( graphCreator.createGraphByTime( ALLDATA.vehicles,wantedCities ),way );
+                graphCreator.createGraphByTimeMoney( wantedCities,moneyPer,timePer ) );
+        double moneyCurrVal = findOtherValue(graphCreator.createGraphByMoney(wantedCities ),way );
+        double timeCurrVal = findOtherValue( graphCreator.createGraphByTime(wantedCities ),way );
         double moneyPercentage = (( moneyCurrVal/money ));
         double timePercentage = ((timeCurrVal/time));
         correlatedWays.add(new CorrelatedWay(way,Math.abs(findQuotient( moneyPercentage,timePercentage ))));
