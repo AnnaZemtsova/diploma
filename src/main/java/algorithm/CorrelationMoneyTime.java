@@ -3,7 +3,6 @@ package algorithm;
 import data.City;
 import dataForAlgorithm.Cell;
 import dataForAlgorithm.CorrelatedWay;
-import generalData.ALLDATA;
 
 import java.util.ArrayList;
 
@@ -29,18 +28,23 @@ public class CorrelationMoneyTime implements Algorithm {
         ArrayList<Cell> bestWay = findBestWay( money,time );
         double moneyCurrVal = findOtherValue(graphCreator.createGraphByMoney( wantedCities ),bestWay );
         double timeCurrVal = findOtherValue( graphCreator.createGraphByTime(wantedCities ),bestWay );
-        ArrayList<City> result = new ArrayList<>(  );
-        result.add( wantedCities.get( bestWay.get( 0 ).getI() -1) );         //получаем из массива номеров городов сами города
-        for (Cell aResWay : bestWay) {
-            result.add( wantedCities.get( aResWay.getJ() - 1 ) );
-        }
+        ArrayList<City> result = getCities(bestWay);
         printCities( result );
-        System.out.println(moneyCurrVal+" "+timeCurrVal);
+        System.out.println("Цена поездки: "+moneyCurrVal+" ,время"+timeCurrVal);
         return null;
     }
 
 
     //_____________________________________________________________________________________
+
+    private ArrayList<City> getCities(ArrayList<Cell> way){
+        ArrayList<City> result = new ArrayList<>(  );
+        result.add( wantedCities.get( way.get( 0 ).getI() -1) );         //получаем из массива номеров городов сами города
+        for (Cell aResWay : way) {
+            result.add( wantedCities.get( aResWay.getJ() - 1 ) );
+        }
+        return result;
+    }
 
 
     /*
