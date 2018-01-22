@@ -107,7 +107,7 @@ public class CorrelationMoneyTime implements Algorithm {
 
     private ArrayList<CorrelatedWay>  findAllowableWay(ArrayList<CorrelatedWay> correlatedWays, double moneyPer,
                                                       double timePer, double money, double time, double e){
-        ArrayList<Cell> way = travelingSalesmanProblem.getBestWay( wantedCities.size() ,
+        ArrayList<Cell> way = travelingSalesmanProblem.getMinimumWay( wantedCities.size() ,
                 graphCreator.createGraphByTimeMoney( wantedCities,moneyPer,timePer ) );
         double moneyCurrVal = findOtherValue(graphCreator.createGraphByMoney(wantedCities ),way );
         double timeCurrVal = findOtherValue( graphCreator.createGraphByTime(wantedCities ),way );
@@ -150,7 +150,7 @@ public class CorrelationMoneyTime implements Algorithm {
      */
     private ArrayList<Cell> findAvailableWayByMinimum(double optimizeValue, double secondValue,double[][]
                                                            optimizeGraph,double[][] secondGraph){
-        ArrayList<Cell> way = travelingSalesmanProblem.getBestWay( wantedCities.size(),optimizeGraph );
+        ArrayList<Cell> way = travelingSalesmanProblem.getMinimumWay( wantedCities.size(),optimizeGraph );
        // min = travelingSalesmanProblem.getMinValue();
         double secondValueReal = findOtherValue(secondGraph,way);
             if(secondValueReal<=secondValue) {
