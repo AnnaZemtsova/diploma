@@ -40,7 +40,7 @@ public class BranchBoundaryMethod implements TravelingSalesmanProblem{
     public double getMinValue() {
         return minValue;
     }
-    
+
     //_____________________________________________________________________________________
 
     /*
@@ -53,15 +53,8 @@ public class BranchBoundaryMethod implements TravelingSalesmanProblem{
         findFullWay(  way, amountOfSity);                             //в результирующей матрице путь не полный, без двух переходов.
                                                                             // Находим, что это будут за переходы
         deleteNotPresentedCells( way );                                     //удаляем все переходы, которые не присутствуют в пути
-        ArrayList<Cell> resWay = sortCells(way);                            //сортируем ячейки от первого перехода до последнего
 
-        return resWay;
-        /*ArrayList<City> result = new ArrayList<>(  );
-        result.add( wantedCities.get( resWay.get( 0 ).getI() -1) );         //получаем из массива номеров городов сами города
-        for (Cell aResWay : resWay) {
-            result.add( wantedCities.get( aResWay.getJ() - 1 ) );
-        }
-        printCities( result );*/
+        return sortCells(way);
     }
 
     //_____________________________________________________________________________________
@@ -696,9 +689,9 @@ public class BranchBoundaryMethod implements TravelingSalesmanProblem{
     //_______________________________РАСПЕЧАТКА___________________________________________
     //_____________________________________________________________________________________
     private void printWay(ArrayList<Cell> cells){
-        for(int i=0;i<cells.size();i++){
-            System.out.println(cells.get( i ).getI()+" "+cells.get( i ).getJ()+
-                    " "+cells.get( i ).isPresent());
+        for (Cell cell : cells) {
+            System.out.println( cell.getI() + " " + cell.getJ() +
+                    " " + cell.isPresent() );
         }
         System.out.println("__________________________________________________");
     }
@@ -708,28 +701,21 @@ public class BranchBoundaryMethod implements TravelingSalesmanProblem{
         String str="";
         System.out.println("GRAPH");
         System.out.println("-----------------------------------------------------------------------");
-        for(int r=0;r<graph.length;r++){
-            for(int p=0;p<graph.length;p++){
-                if(graph[r][p]>100000000) {
+        for (double[] aGraph : graph) {
+            for (int p = 0; p < graph.length; p++) {
+                if (aGraph[p] > 100000000) {
                     str = "inf";
+                } else {
+                    str = String.valueOf( Double.valueOf( aGraph[p] ).intValue() );
                 }
-                else {
-                    str = String.valueOf(Double.valueOf(graph[r][p]).intValue());
-                }
-                System.out.printf(" %4s   |",str);
+                System.out.printf( " %4s   |", str );
             }
             System.out.println();
-            System.out.println("------------------------------------------------------------------");
+            System.out.println( "------------------------------------------------------------------" );
         }
     }
     //_____________________________________________________________________________________
 
-    private void printCities(ArrayList<City> cities){
-        for(int i=0;i<cities.size();i++){
-            System.out.println(cities.get( i ).getName());
-        }
-    }
-    //_____________________________________________________________________________________
 
 }
 
