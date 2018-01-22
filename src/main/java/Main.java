@@ -1,33 +1,39 @@
-import algorithm.Algorithm;
+
 import algorithm.BranchBoundaryMethod;
+
+import algorithm.Graph;
+import algorithm.TravelingSalesmanProblem;
 import data.City;
-import data.Train;
+import data.Vehicle;
 import generalData.ALLDATA;
 import inputData.InputCities;
-import inputData.InputTrains;
 import inputData.InputUserData;
+import inputData.InputVehicle;
 import testingData.CitiesFromCode;
-import testingData.TrainsFromCode;
 import testingData.UserDataFromCode;
-
+import testingData.VehiclesFromCode;
 import java.util.ArrayList;
+import algorithm.*;
 
 public class Main {
     public static void main(String[] args) {
         InputCities inputCities = new CitiesFromCode();
         ArrayList<City> cities = inputCities.getCities();
 
-        InputTrains inputTrains = new TrainsFromCode();
-        ArrayList<Train> trains = inputTrains.getTrains();
+        InputVehicle inputTrains = new VehiclesFromCode();
+        ArrayList<Vehicle> vehicles = inputTrains.getVehicles();
 
         ALLDATA.cities = cities;
-        ALLDATA.trains = trains;
+        ALLDATA.vehicles = vehicles;
 
         InputUserData inputUserData = new UserDataFromCode();
+        double money = inputUserData.getMoney();
+        double time = (double)(inputUserData.getTime()).getTime();
         ArrayList<City> wantedCity = inputUserData.getWantedCities();
-
-        Algorithm algorithm = new BranchBoundaryMethod();
-        algorithm.getBestWay( wantedCity );
+        GraphCreator graphCreator = new Graph(ALLDATA.vehicles);
+        TravelingSalesmanProblem travelingSalesmanProblem = new BranchBoundaryMethod();
+        Algorithm algorithm = new CorrelationMoneyTime(travelingSalesmanProblem,graphCreator,wantedCity );
+       algorithm.getWay(money,time  );
     }
 
 }
