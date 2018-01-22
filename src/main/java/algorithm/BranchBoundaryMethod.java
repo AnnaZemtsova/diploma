@@ -26,7 +26,7 @@ public class BranchBoundaryMethod implements TravelingSalesmanProblem{
     находим оптимальный путь методом ветвей и границ
      */
     @Override
-    public ArrayList<Cell> getBestWay(int amountOfCity,double[][] currentGraph) {
+    public ArrayList<Cell> getMinimumWay(int amountOfCity,double[][] currentGraph) {
         this.currentGraph = currentGraph;
         matrix.setMatrix(currentGraph);
         matrix.setWay( new ArrayList<>(  ) );
